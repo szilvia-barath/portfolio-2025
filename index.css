@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Selection */
+::selection { @apply bg-amber-300/40 text-neutral-900; }
+html, body, #root { height: 100%; }
+
+/* Scrollbars */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-thumb { background: rgba(120,120,120,.35); }
+
+/* Prose */
+.prose code { background: rgba(245, 158, 11, 0.1); padding: .15rem .35rem; border-radius: .25rem; }
+
+/* Motion safety */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+}
+
+/* ===== Pulsing arrow animations ===== */
+@keyframes pulse-soft {
+  0%, 100% { opacity: .55; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.08); }
+}
+@keyframes bob-x-right {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(6px); }
+}
+@keyframes bob-x-left {
+  0%, 100% { transform: translateX(0); }
+  50%      { transform: translateX(-6px); }
+}
+.animate-pulse-soft { animation: pulse-soft 1.6s ease-in-out infinite; }
+.animate-bob-x-right { animation: bob-x-right 1.2s ease-in-out infinite; }
+.animate-bob-x-left  { animation: bob-x-left  1.2s ease-in-out infinite; }
+/* in RaygunKeyframes */
+.raygun-plate.plate-pink { transform: translate(2.2px, 1.6px); }
+.raygun-plate.plate-cyan { transform: translate(-2px, -1.2px); }
