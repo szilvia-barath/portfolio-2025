@@ -1,91 +1,16 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Portfolio coming soon</title>
-  <meta name="description" content="Experimental portfolio — coming soon. Contact info inside." />
-  <link rel="icon" href="./icon_scott.jpg" />
-  <!-- Tailwind via CDN for rapid styling (no build step) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    /* Tailwind fine-tuning (optional) */
-    tailwind.config = {
-      theme: { extend: { fontFamily: { sans: ['ui-sans-serif','system-ui','Inter','Arial','sans-serif'] } } }
-    }
-  </script>
-
-  <!-- Custom styles -->
-  <link rel="stylesheet" href="./styles.css" />
-</head>
-<body class="bg-neutral-950 text-neutral-100 selection:bg-amber-300/40 selection:text-neutral-900">
-  <!-- SVG filters for distorted headline -->
-  <svg class="absolute w-0 h-0 -z-50" aria-hidden>
-    <filter id="distort">
-      <feTurbulence type="fractalNoise" baseFrequency="0.009" numOctaves="2" seed="3" result="n" />
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="8" xChannelSelector="R" yChannelSelector="G" />
-    </filter>
-  </svg>
-
-
-
-    <!-- Readability & vibe overlays -->
-    <div class="overlay-vignette pointer-events-none"></div>
-    <div class="overlay-radial pointer-events-none"></div>
-    <div class="overlay-grain pointer-events-none">
-      <!-- Procedural noise -->
-      <svg class="w-full h-full" preserveAspectRatio="none">
-        <filter id="f-noise">
-          <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/>
-          <feColorMatrix type="saturate" values="0" />
-          <feComponentTransfer><feFuncA type="table" tableValues="0 0.4"/></feComponentTransfer>
-        </filter>
-        <rect width="100%" height="100%" filter="url(#f-noise)" fill="#efefef" />
-      </svg>
-    </div>
-    <div class="overlay-scanlines pointer-events-none"></div>
-  </div>
-
-  <!-- Content -->
-  <main class="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center px-6 text-center">
-    <h1 class="uppercase font-black tracking-tight leading-none drop-shadow-[0_6px_0_rgba(0,0,0,0.35)] text-[15vw] md:text-[10vw] [filter:url(#distort)]">
-      Coming&nbsp;Soon
-    </h1>
-
-    <p class="mt-5 max-w-2xl text-sm md:text-base text-neutral-50 [text-wrap:balance]">
-      I am currently re-designing my portfolio. You can expect experimental type, rough textures, and chaotic harmony.
-    </p>
-
-    <div class="mt-10 flex flex-wrap items-center justify-center gap-3">
-      <a href="mailto:you@example.com"
-         class="cta-btn">
-szilvia.barat@gmail.com      </a>
-      <a href="https://github.com/szilvia-barath" target="_blank" rel="noreferrer"
-         class="cta-btn">
-         GitHub
-      </a>
-      <a href="https://www.linkedin.com/in/szilvia-bar%C3%A1th/" target="_blank" rel="noreferrer"
-         class="cta-btn">
-LinkedIn      </a>
-    </div>
-
-    <div class="mt-10 text-[10px] uppercase tracking-[0.35em] text-neutral-300/90">
-      Launching soon! Stay tuned.
-    </div>
-  </main>
-
-
-
-  <!-- Floating envelope -->
-  <a aria-label="Email" href="mailto:szilvia.barat@gmail.com"
-     class="fixed top-4 right-4 z-10 p-3 rounded-full border border-neutral-700/70 bg-neutral-900/80 backdrop-blur hover:border-neutral-300 transition">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-      <path d="M4 6h16v12H4z" />
-      <path d="M22 6l-10 7L2 6" />
-    </svg>
-  </a>
-
-  <script src="./script.js" defer></script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>PORTFOLIO 2025</title>
+    <link rel="icon" type="image/png" href="/icon_scott.jpg" />
+  </head>
+  <body class="bg-neutral-950">
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
-
