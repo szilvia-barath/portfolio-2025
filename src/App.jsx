@@ -92,13 +92,20 @@ function Root() {
 
   return (
     <div className="h-full bg-white text-neutral-900 selection:bg-pink-300/40 selection:text-neutral-900">
+
+      {/* ADD THE NAVBAR HERE */}
+      <Navbar routeName={route.name} />
+
       {route.name !== "post" && <OverlayArrows routeName={route.name} />}
 
       <EnvelopeButton onClick={() => setContactOpen(true)} />
       <ContactModal open={contactOpen} onClose={() => setContactOpen(false)} />
 
       {route.name === "post" ? (
-        <BlogPostPage slug={route.params.slug} />
+        // Add top padding so content isn't hidden behind fixed navbar
+        <div className="pt-16">
+          <BlogPostPage slug={route.params.slug} />
+        </div>
       ) : (
         <HomeSections initialSection={route.name} />
       )}
@@ -125,7 +132,180 @@ function useHashRoute() {
   }, []);
   return route;
 }
+/* ========================= Scroll Arrows ========================= */
+function ScrollArrows() {
+  const [showLeft, setShowLeft] = useState(false);
+  const [showRight, setShowRight] = useState(true);
 
+  // Check scroll position to toggle visibility
+  useEffect(() => {
+    const scroller = document.querySelector('[data-hscroll]');
+    if (!scroller) return;
+
+    const checkScroll = () => {
+      // buffer of 10px to avoid flickering
+      const isAtStart = scroller.scrollLeft < 10;
+      const isAtEnd = scroller.scrollLeft + scroller.clientWidth >= scroller.scrollWidth - 10;
+
+      setShowLeft(!isAtStart);
+      setShowRight(!isAtEnd);
+    };
+
+    scroller.addEventListener("scroll", checkScroll);
+    // Check initially
+    checkScroll();
+
+    return () => scroller.removeEventListener("scroll", checkScroll);
+  }, []);
+
+  const scroll = (direction) => {
+    const scroller = document.querySelector('[data-hscroll]');
+    if (scroller) {
+      // Scroll by one viewport width
+      const amount = window.innerWidth;
+      scroller.scrollBy({
+        left: direction === "left" ? -amount : amount,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const btnClass =
+    "fixed top-1/2 z-40 hidden md:flex items-center justify-center w-12 h-12 -translate-y-1/2 rounded-full " +
+    "bg-neutral-950/50 backdrop-blur-sm border border-white/10 text-white shadow-lg transition-all duration-300 " +
+    "hover:bg-neutral-950 hover:border-pink-500 hover:text-pink-500 hover:scale-110 active:scale-95 cursor-pointer";
+
+  return (
+    <>
+      {/* Left Arrow */}
+      <button
+        onClick={() => scroll("left")}
+        className={`${btnClass} left-6 ${showLeft ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}`}
+        aria-label="Scroll Left"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+
+      {/* Right Arrow */}
+      <button
+        onClick={() => scroll("right")}
+        className={`${btnClass} right-6 ${showRight ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}`}
+        aria-label="Scroll Right"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </>
+  );
+}
+/* ========================= Navbar & Progress ========================= */
+function Navbar({ routeName }) {
+  const [activeSection, setActiveSection] = useState("home");
+  const [progress, setProgress] = useState(0);
+
+  // Handle Scroll Progress & Active State Detection
+  useEffect(() => {
+    // We only track scroll if we are on the home/main route
+    if (routeName === "post") {
+      setProgress(100);
+      return;
+    }
+
+    const scroller = document.querySelector('[data-hscroll]');
+    if (!scroller) return;
+
+    const onScroll = () => {
+      const scrollLeft = scroller.scrollLeft;
+      const width = scroller.clientWidth;
+      const scrollWidth = scroller.scrollWidth;
+
+      // 1. Calculate Progress %
+      const maxScroll = scrollWidth - width;
+      const pct = maxScroll > 0 ? (scrollLeft / maxScroll) * 100 : 0;
+      setProgress(pct);
+
+      // 2. Calculate Active Section based on scroll position
+      // Since sections are w-screen (100vw), we can calculate index
+      const index = Math.round(scrollLeft / width);
+      const sectionNames = ["home", "about", "skills", "projects", "blog"];
+      // Guard against out of bounds
+      if (sectionNames[index]) {
+        setActiveSection(sectionNames[index]);
+      }
+    };
+
+    scroller.addEventListener("scroll", onScroll);
+    // Trigger once on mount
+    onScroll();
+
+    return () => scroller.removeEventListener("scroll", onScroll);
+  }, [routeName]);
+
+  const handleNavClick = (sectionId) => {
+    // If we are on a blog post, go home first
+    if (routeName === "post") {
+      window.location.hash = "#/";
+      setTimeout(() => {
+        document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+    } else {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  const navItems = [
+    { id: "section-home", label: "Home", key: "home" },
+    { id: "section-about", label: "About", key: "about" },
+    { id: "section-skills", label: "Skills", key: "skills" },
+    { id: "section-projects", label: "Projects", key: "projects" },
+    { id: "section-blog", label: "Blog", key: "blog" },
+  ];
+
+  return (
+    <nav className="fixed top-0 left-0 z-50 w-full border-b border-white/10 bg-neutral-950/80 backdrop-blur-md">
+      <div className="flex items-center justify-between px-6 py-4 md:px-10">
+        {/* Logo / Name */}
+        <div
+          onClick={() => handleNavClick("section-home")}
+          className="text-lg font-black tracking-widest text-white uppercase transition-colors cursor-pointer select-none hover:text-pink-500"
+        >
+          SB<span className="text-pink-500">.</span>
+        </div>
+
+        {/* Desktop Navigation */}
+        <ul className="hidden gap-8 md:flex">
+          {navItems.map((item) => {
+            const isActive = activeSection === item.key && routeName !== "post";
+            return (
+              <li key={item.key}>
+                <button
+                  onClick={() => handleNavClick(item.id)}
+                  className={`text-[11px] font-bold uppercase tracking-[0.2em] transition-all duration-300 ${
+                    isActive ? "text-pink-500" : "text-neutral-400 hover:text-pink-400"
+                  }`}
+                >
+                  {item.label}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+
+        {/* Mobile Menu Icon (Simple placeholder if needed, or keep hidden) */}
+        <div className="text-xs tracking-widest uppercase md:hidden text-neutral-400">
+           {routeName === 'post' ? 'Blog' : activeSection}
+        </div>
+      </div>
+
+      {/* Progress Bar */}
+      <div className="absolute bottom-0 left-0 h-[2px] w-full bg-white/5">
+        <div
+          className="h-full transition-all duration-100 ease-out bg-gradient-to-r from-pink-600 to-pink-400"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+    </nav>
+  );
+}
 /* ========================= Home Sections ========================= */
 function HomeSections({ initialSection }) {
   const scrollerRef = useRef(null);
@@ -143,25 +323,137 @@ function HomeSections({ initialSection }) {
   const [hoveredSkill, setHoveredSkill] = useState(null);
 
   return (
-    <div
-      ref={scrollerRef}
-      data-hscroll
-      className="h-screen w-screen overflow-x-scroll overflow-y-hidden snap-x snap-mandatory flex scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-    >
-      <Section className="relative"><Hero /></Section>
+    <div className="relative w-full h-full"> {/* Wrapped in a relative container */}
 
-      <IllustrationSplit side="left" image="/me.png">
-        <PinkHeadline>About</PinkHeadline>
-        <div className="mt-4 text-[15px] leading-relaxed space-y-4">
-          <p>I blend the analytical with the artistic, uniting frontend development with digital humanities to design thoughtful, tactile experiences. My work lives at the intersection of code, culture, and pedagogy.</p>
-          <p>With a dual background in Digital Humanities and Education, I explore how interface design and visual storytelling can enrich knowledge sharing. Whether building visual narratives, facilitating workshops, or preserving digital archives, I aim to make technology more human.</p>
+      {/* ADD ARROWS HERE */}
+      <ScrollArrows />
+
+      <div
+        ref={scrollerRef}
+        data-hscroll
+        className="h-screen w-screen overflow-x-scroll overflow-y-hidden snap-x snap-mandatory flex scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        <Section id="section-home" className="relative"><Hero /></Section>
+
+        <IllustrationSplit id="section-about" side="left" image="/me.png">
+          <PinkHeadline>About</PinkHeadline>
+          <div className="mt-4 text-[15px] leading-relaxed space-y-4">
+            <p>I blend the analytical with the artistic, uniting frontend development with digital humanities to design thoughtful, tactile experiences. My work lives at the intersection of code, culture, and pedagogy.</p>
+            <p>With a dual background in Digital Humanities and Education, I explore how interface design and visual storytelling can enrich knowledge sharing. Whether building visual narratives, facilitating workshops, or preserving digital archives, I aim to make technology more human.</p>
+          </div>
+          <ul className="flex flex-wrap gap-2 mt-6">
+            {["Design", "Frontend", "Digital Humanities", "Education", "Art and creativity"].map((k) => (
+              <li key={k} className="px-2.5 py-1 text-[10px] uppercase tracking-widest border border-neutral-300 bg-white hover:border-pink-500/60 transition -rotate-1">{k}</li>
+            ))}
+          </ul>
+        </IllustrationSplit>
+
+        <div id="section-skills" className="contents">
+          <GalaxySplit side="right" hoveredSkill={hoveredSkill}>
+            <PinkHeadline>Skills</PinkHeadline>
+            <p className="mt-4 mb-6 text-sm md:text-base">Hover over the skills to locate them in the galaxy.</p>
+            <p className="mt-4 mb-6 text-sm md:text-base">From expressive code to thoughtful interaction, these are the tools I use to build stories and systems, on the web, in the classroom, and beyond.</p>
+
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {SKILLS.map((s, i) => (
+                <span
+                  key={s}
+                  onMouseEnter={() => setHoveredSkill(s)}
+                  onMouseLeave={() => setHoveredSkill(null)}
+                  className={`cursor-crosshair text-[11px] uppercase tracking-widest px-2 py-1 border bg-white ${i % 3 === 0 ? "-rotate-1" : "rotate-1"} border-neutral-300 hover:border-pink-500 hover:bg-pink-50 transition`}
+                >
+                  {s}
+                </span>
+              ))}
+            </div>
+          </GalaxySplit>
         </div>
-        <ul className="flex flex-wrap gap-2 mt-6">
-          {["Design", "Frontend", "Digital Humanities", "Education", "Art and creativity"].map((k) => (
-            <li key={k} className="px-2.5 py-1 text-[10px] uppercase tracking-widest border border-neutral-300 bg-white hover:border-pink-500/60 transition -rotate-1">{k}</li>
-          ))}
-        </ul>
+
+        <Section id="section-projects" className="relative">
+          <div className="flex w-full h-full">
+            <div className="relative hidden w-1/2 h-full overflow-hidden border-r md:block bg-neutral-100 border-neutral-200">
+              <img src="/drawing-spiral.png" className="absolute inset-0 object-cover w-full h-90 opacity-90" alt="" />
+              <div className="absolute inset-0 bg-pink-500/10 mix-blend-multiply" />
+            </div>
+            <div className="relative w-full h-full px-6 py-12 pt-24 overflow-y-auto bg-white md:w-1/2 md:px-16 md:py-20">
+              <div className="max-w-3xl mx-auto">
+                <PinkHeadline>Projects</PinkHeadline>
+                <p className="mt-4 text-sm md:text-base">Selected work exploring motion, data, and narrative on the web.</p>
+                <p className="mt-2 text-sm md:text-base">These selected works reflect my fascination with interactivity, storytelling, and speculative aesthetics. Many draw from the cultural archive or remix visual media in new formats.</p>
+                <div className="grid grid-cols-1 gap-4 mt-8 sm:grid-cols-2">
+                  {PROJECTS.map((p, i) => (<ProjectCard key={i} project={p} index={i} />))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Section>
+
+        <IllustrationSplit side="right" image="/drawing-eye.png" id="section-blog">
+          <PinkHeadline>Blog</PinkHeadline>
+          <p className="mt-4 text-sm md:text-base">Notes on interfaces, visuals, and teaching.</p>
+          <p className="mt-2 text-sm md:text-base">Reflections on design, web culture, and creative pedagogy.</p>
+          <div className="grid grid-cols-1 gap-4 mt-6 sm:grid-cols-2 lg:grid-cols-2">
+            {POSTS.map((p) => (<BlogCard key={p.slug} post={p} />))}
+          </div>
+          <div className="mt-8">
+            <a href="#/blog" className="inline-block px-3 py-2 hidden text-[11px] uppercase tracking-[0.25em] border border-neutral-300 hover:border-pink-500 transition">Read All Entries</a>
+          </div>
+        </IllustrationSplit>
+
+
+      {/* 3. Manually added Wrapper for Skills to attach ID, as GalaxySplit didn't have ID prop in original code */}
+      <div id="section-skills" className="contents">
+        <GalaxySplit side="right" hoveredSkill={hoveredSkill}>
+          <PinkHeadline>Skills</PinkHeadline>
+          <p className="mt-4 mb-6 text-sm md:text-base">Hover over the skills to locate them in the galaxy.</p>
+          <p className="mt-4 mb-6 text-sm md:text-base">From expressive code to thoughtful interaction, these are the tools I use to build stories and systems, on the web, in the classroom, and beyond.</p>
+
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {SKILLS.map((s, i) => (
+              <span
+                key={s}
+                onMouseEnter={() => setHoveredSkill(s)}
+                onMouseLeave={() => setHoveredSkill(null)}
+                className={`cursor-crosshair text-[11px] uppercase tracking-widest px-2 py-1 border bg-white ${i % 3 === 0 ? "-rotate-1" : "rotate-1"} border-neutral-300 hover:border-pink-500 hover:bg-pink-50 transition`}
+              >
+                {s}
+              </span>
+            ))}
+          </div>
+        </GalaxySplit>
+      </div>
+
+      <Section id="section-projects" className="relative">
+        <div className="flex w-full h-full">
+          <div className="relative hidden w-1/2 h-full overflow-hidden border-r md:block bg-neutral-100 border-neutral-200">
+            <img src="/drawing-spiral.png" className="absolute inset-0 object-cover w-full h-90 opacity-90" alt="" />
+            <div className="absolute inset-0 bg-pink-500/10 mix-blend-multiply" />
+          </div>
+          <div className="relative w-full h-full px-6 py-12 pt-24 overflow-y-auto bg-white md:w-1/2 md:px-16 md:py-20">
+            <div className="max-w-3xl mx-auto">
+              <PinkHeadline>Projects</PinkHeadline>
+              <p className="mt-4 text-sm md:text-base">Selected work exploring motion, data, and narrative on the web.</p>
+              <p className="mt-2 text-sm md:text-base">These selected works reflect my fascination with interactivity, storytelling, and speculative aesthetics. Many draw from the cultural archive or remix visual media in new formats.</p>
+              <div className="grid grid-cols-1 gap-4 mt-8 sm:grid-cols-2">
+                {PROJECTS.map((p, i) => (<ProjectCard key={i} project={p} index={i} />))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <IllustrationSplit side="right" image="/drawing-eye.png" id="section-blog">
+        <PinkHeadline>Blog</PinkHeadline>
+        <p className="mt-4 text-sm md:text-base">Notes on interfaces, visuals, and teaching.</p>
+        <p className="mt-2 text-sm md:text-base">Reflections on design, web culture, and creative pedagogy.</p>
+        <div className="grid grid-cols-1 gap-4 mt-6 sm:grid-cols-2 lg:grid-cols-2">
+          {POSTS.map((p) => (<BlogCard key={p.slug} post={p} />))}
+        </div>
+        <div className="mt-8">
+          <a href="#/blog" className="inline-block px-3 py-2 hidden text-[11px] uppercase tracking-[0.25em] border border-neutral-300 hover:border-pink-500 transition">Read All Entries</a>
+        </div>
       </IllustrationSplit>
+
 
       <GalaxySplit side="right" hoveredSkill={hoveredSkill}>
         <PinkHeadline>Skills</PinkHeadline>
