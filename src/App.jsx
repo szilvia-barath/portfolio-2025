@@ -323,83 +323,29 @@ function HomeSections({ initialSection }) {
   const [hoveredSkill, setHoveredSkill] = useState(null);
 
   return (
-    <div className="relative w-full h-full"> {/* Wrapped in a relative container */}
+    <div
+      ref={scrollerRef}
+      data-hscroll
+      // Added pt-16 to ensure content clears the navbar visually if needed,
+      // though for full screen sections usually it's fine without.
+      className="h-screen w-screen overflow-x-scroll overflow-y-hidden snap-x snap-mandatory flex scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
+      {/* 1. Added ID for Home */}
+      <Section id="section-home" className="relative"><Hero /></Section>
 
-      {/* ADD ARROWS HERE */}
-      <ScrollArrows />
-
-      <div
-        ref={scrollerRef}
-        data-hscroll
-        className="h-screen w-screen overflow-x-scroll overflow-y-hidden snap-x snap-mandatory flex scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        <Section id="section-home" className="relative"><Hero /></Section>
-
-        <IllustrationSplit id="section-about" side="left" image="/me.png">
-          <PinkHeadline>About</PinkHeadline>
-          <div className="mt-4 text-[15px] leading-relaxed space-y-4">
-            <p>I blend the analytical with the artistic, uniting frontend development with digital humanities to design thoughtful, tactile experiences. My work lives at the intersection of code, culture, and pedagogy.</p>
-            <p>With a dual background in Digital Humanities and Education, I explore how interface design and visual storytelling can enrich knowledge sharing. Whether building visual narratives, facilitating workshops, or preserving digital archives, I aim to make technology more human.</p>
-          </div>
-          <ul className="flex flex-wrap gap-2 mt-6">
-            {["Design", "Frontend", "Digital Humanities", "Education", "Art and creativity"].map((k) => (
-              <li key={k} className="px-2.5 py-1 text-[10px] uppercase tracking-widest border border-neutral-300 bg-white hover:border-pink-500/60 transition -rotate-1">{k}</li>
-            ))}
-          </ul>
-        </IllustrationSplit>
-
-        <div id="section-skills" className="contents">
-          <GalaxySplit side="right" hoveredSkill={hoveredSkill}>
-            <PinkHeadline>Skills</PinkHeadline>
-            <p className="mt-4 mb-6 text-sm md:text-base">Hover over the skills to locate them in the galaxy.</p>
-            <p className="mt-4 mb-6 text-sm md:text-base">From expressive code to thoughtful interaction, these are the tools I use to build stories and systems, on the web, in the classroom, and beyond.</p>
-
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {SKILLS.map((s, i) => (
-                <span
-                  key={s}
-                  onMouseEnter={() => setHoveredSkill(s)}
-                  onMouseLeave={() => setHoveredSkill(null)}
-                  className={`cursor-crosshair text-[11px] uppercase tracking-widest px-2 py-1 border bg-white ${i % 3 === 0 ? "-rotate-1" : "rotate-1"} border-neutral-300 hover:border-pink-500 hover:bg-pink-50 transition`}
-                >
-                  {s}
-                </span>
-              ))}
-            </div>
-          </GalaxySplit>
+      {/* 2. Added ID for About */}
+      <IllustrationSplit id="section-about" side="left" image="/me.png">
+        <PinkHeadline>About</PinkHeadline>
+        <div className="mt-4 text-[15px] leading-relaxed space-y-4">
+          <p>I blend the analytical with the artistic, uniting frontend development with digital humanities to design thoughtful, tactile experiences. My work lives at the intersection of code, culture, and pedagogy.</p>
+          <p>With a dual background in Digital Humanities and Education, I explore how interface design and visual storytelling can enrich knowledge sharing. Whether building visual narratives, facilitating workshops, or preserving digital archives, I aim to make technology more human.</p>
         </div>
-
-        <Section id="section-projects" className="relative">
-          <div className="flex w-full h-full">
-            <div className="relative hidden w-1/2 h-full overflow-hidden border-r md:block bg-neutral-100 border-neutral-200">
-              <img src="/drawing-spiral.png" className="absolute inset-0 object-cover w-full h-90 opacity-90" alt="" />
-              <div className="absolute inset-0 bg-pink-500/10 mix-blend-multiply" />
-            </div>
-            <div className="relative w-full h-full px-6 py-12 pt-24 overflow-y-auto bg-white md:w-1/2 md:px-16 md:py-20">
-              <div className="max-w-3xl mx-auto">
-                <PinkHeadline>Projects</PinkHeadline>
-                <p className="mt-4 text-sm md:text-base">Selected work exploring motion, data, and narrative on the web.</p>
-                <p className="mt-2 text-sm md:text-base">These selected works reflect my fascination with interactivity, storytelling, and speculative aesthetics. Many draw from the cultural archive or remix visual media in new formats.</p>
-                <div className="grid grid-cols-1 gap-4 mt-8 sm:grid-cols-2">
-                  {PROJECTS.map((p, i) => (<ProjectCard key={i} project={p} index={i} />))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </Section>
-
-        <IllustrationSplit side="right" image="/drawing-eye.png" id="section-blog">
-          <PinkHeadline>Blog</PinkHeadline>
-          <p className="mt-4 text-sm md:text-base">Notes on interfaces, visuals, and teaching.</p>
-          <p className="mt-2 text-sm md:text-base">Reflections on design, web culture, and creative pedagogy.</p>
-          <div className="grid grid-cols-1 gap-4 mt-6 sm:grid-cols-2 lg:grid-cols-2">
-            {POSTS.map((p) => (<BlogCard key={p.slug} post={p} />))}
-          </div>
-          <div className="mt-8">
-            <a href="#/blog" className="inline-block px-3 py-2 hidden text-[11px] uppercase tracking-[0.25em] border border-neutral-300 hover:border-pink-500 transition">Read All Entries</a>
-          </div>
-        </IllustrationSplit>
-
+        <ul className="flex flex-wrap gap-2 mt-6">
+          {["Design", "Frontend", "Digital Humanities", "Education", "Art and creativity"].map((k) => (
+            <li key={k} className="px-2.5 py-1 text-[10px] uppercase tracking-widest border border-neutral-300 bg-white hover:border-pink-500/60 transition -rotate-1">{k}</li>
+          ))}
+        </ul>
+      </IllustrationSplit>
 
       {/* 3. Manually added Wrapper for Skills to attach ID, as GalaxySplit didn't have ID prop in original code */}
       <div id="section-skills" className="contents">
