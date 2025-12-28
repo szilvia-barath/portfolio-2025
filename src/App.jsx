@@ -928,7 +928,7 @@ function OverlayArrows() {
 
 function EnvelopeButton({ onClick }) {
   return (
-    <button onClick={onClick} className="fixed z-50 p-3 transition border rounded-full top-10 right-4 border-neutral-300 bg-white/70 backdrop-blur hover:border-pink-500 hover:text-pink-600">
+    <button onClick={onClick} className="fixed z-50 p-3 transition bg-transparent border rounded-full top-10 right-4 border-neutral-300 backdrop-blur hover:border-pink-500 hover:text-pink-600">
       <span className="sr-only">Contact</span>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
         <path d="M4 6h16v12H4z" /><path dName="envelope" d="M22 6l-10 7L2 6" />
